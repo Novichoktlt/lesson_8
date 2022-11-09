@@ -29,6 +29,9 @@ public class Product {
     private Long id;
     @Column(name = "title")
     private String title;
+
+    @Column(name = "amt")
+    private int amt;
     @Column(name = "cost")
     private BigDecimal cost;
     @Column(name = "manufacture_date")

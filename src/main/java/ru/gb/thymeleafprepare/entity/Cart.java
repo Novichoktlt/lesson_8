@@ -28,8 +28,14 @@ public class Cart {
     private Long id;
     @Column(name = "title")
     private String title;
+
+    @Column(name = "amt")
+    private int amt;
     @Column(name = "cost")
     private BigDecimal cost;
+
+    @Column(name = "price")
+    private BigDecimal price;
 
 //    @ManyToOne
 //    @JoinColumn(name = "manufacturer_id")

@@ -15,6 +15,7 @@ import ru.gb.thymeleafprepare.entity.Cart;
 import ru.gb.thymeleafprepare.entity.Product;
 import ru.gb.thymeleafprepare.entity.enums.Status;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +38,7 @@ public class ProductService {
             if (productFromDBOptional.isPresent()) {
                 Product productFromDB = productFromDBOptional.get();
                 productFromDB.setTitle(product.getTitle());
+                productFromDB.setAmt(product.getAmt());
                 productFromDB.setCost(product.getCost());
                 productFromDB.setManufactureDate(product.getManufactureDate());
                 productFromDB.setStatus(product.getStatus());
@@ -46,16 +48,43 @@ public class ProductService {
         return productDao.save(product);
     }
 
-    public void cartSave(Long id){
+    public void cartSave(String flag, Long id){
+
+        Cart addCart = new Cart();
+        
         Optional<Product> product = productDao.findById(id);
         Product productC = product.get();
-        Cart addCart = new Cart();
-        addCart.setId(productC.getId());
-        addCart.setTitle(productC.getTitle());
-        addCart.setCost(productC.getCost());
-        addCart.setStatus(productC.getStatus());
+        if (flag.equals("save")){
+            Optional<Cart> cart = cartDao.findByTitle(productC.getTitle());
+            if (cart.isEmpty()){
+                addCart.setId(productC.getId());
+                addCart.setTitle(productC.getTitle());
+                addCart.setPrice(productC.getCost());
+                addCart.setStatus(productC.getStatus());
+                addCart.setAmt(1);
+                addCart.setCost(addCart.getPrice());
+
+            }else {
+                addCart = cart.get();
+                addCart.setAmt(addCart.getAmt() + 1);
+                BigDecimal price = addCart.getPrice();
+                BigDecimal amt = new BigDecimal(addCart.getAmt());
+                addCart.setCost(price.multiply(amt));
+
+        }
+            productC.setAmt(productC.getAmt() - 1);
+        }else if (flag.equals("delete")){
+            Optional<Cart> cart = cartDao.findById(id);
+            addCart = cart.get();
+            addCart.setAmt(addCart.getAmt() - 1);
+            BigDecimal price = addCart.getPrice();
+            BigDecimal amt = new BigDecimal(addCart.getAmt());
+            addCart.setCost(price.multiply(amt));
+        }
+        productDao.save(productC);
         cartDao.save(addCart);
     }
+
 
     @Transactional(readOnly = true)
     public Product findById(Long id) {
@@ -84,7 +113,18 @@ public class ProductService {
 
     public void deleteByIdCart(Long id) {
         try {
+            Optional<Cart> cartDelete = cartDao.findById(id);
+            Cart cart = cartDelete.get();
+            if (cart.getAmt() < 2){
             cartDao.deleteById(id);
+            }else {
+                String flag = "delete";
+                cartSave(flag, id);
+            }
+            Optional<Product> product = productDao.findByTitle(cart.getTitle());
+            Product productC = product.get();
+            productC.setAmt(productC.getAmt() + 1);
+            productDao.save(productC);
         } catch (EmptyResultDataAccessException e) {
             log.error(e.getMessage());
         }

@@ -18,10 +18,12 @@
     <span th:if="${products.size() == 0}">Товаров нет</span>
     <div th:unless="${products.size() == 0}">
         <table class="table">
+
             <thead>
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Наименование</th>
+                <th scope="col">Шт.</th>
                 <th scope="col">Цена</th>
                 <th scope="col">Редактировать</th>
                 <th scope="col">Удалить</th>
@@ -35,6 +37,7 @@
 
                 <th scope="row" th:text="${i.count}"></th>
                 <td th:text="${product.title}"></td>
+                <td th:text="${product.amt}"></td>
                 <td th:text="${product.cost}"></td>
                 <td>
                     <a type="button" th:href="@{/product(id=${product.id})}" class="btn btn-warning">Редактировать</a>
@@ -44,16 +47,22 @@
 <!--                    <a type="button" th:href="@{/product/delete(id=${product.id})}" class="btn btn-danger">Удалить</a>-->
                 </td>
                 <td>
-                    <a type="button" th:href="@{/product/add(id=${product.id})}" class="btn btn-success">Добавить в корзину</a>
+                     <span th:if="${product.amt > 0}">
+                <a type="button" th:href="@{/product/add(id=${product.id})}" class="btn btn-success">Добавить в корзину</a></span>
+                        <div th:unless="${product.amt > 0}">
+                            <a type="button"  class="btn btn-secondary">Добавить в корзину</a>
+                        </div>
                 </td>
             </tr>
             </tbody>
         </table>
+
     </div>
 
 </div>
-<div th:replace="~{footer :: footerBlock}"/>
+<div th:replace="~{footer :: footerBlock}"></div>
 
 
 </body>
+
 </html>

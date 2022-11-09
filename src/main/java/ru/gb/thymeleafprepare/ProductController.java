@@ -61,7 +61,8 @@ public class ProductController {
 
         @GetMapping("/add")
     public String cartSave(@RequestParam(name = "id") Long id) {
-        productService.cartSave(id);
+            String flag = "save";
+        productService.cartSave(flag, id);
         return "redirect:/product/all";
     }
 
